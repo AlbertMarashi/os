@@ -75,6 +75,7 @@ fn kmain() {
 	// Main should initialize all sub-systems and get
 	// ready to start scheduling. The last thing this
 	// should do is start the timer.
+	println!("hello world");
 }
 
 // ///////////////////////////////////
