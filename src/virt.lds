@@ -1,8 +1,10 @@
-ENTRY(_start)
+
+OUTPUT_ARCH(riscv64gc)
+
+ENTRY(_start);
  
 SECTIONS {
     . = 0x80000000;
- 
     .text : {
         *(.text .text.*)
         . = ALIGN(0x1000);
@@ -30,4 +32,6 @@ SECTIONS {
  
     . += 0x8000;
     _stack = .;
+
+    /DISCARD/ : { *(.eh_frame_hdr .eh_frame) }
 }
