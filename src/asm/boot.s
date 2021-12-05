@@ -14,11 +14,12 @@
 _start:
 	# Any hardware threads (hart) that are not bootstrapping
 	# need to wait for an IPI
-	csrr	t0, mhartid
-	bnez	t0, 3f
+	# csrr	t0, mhartid
+	# bnez	t0, 3f
 	# SATP should be zero, but let's make sure
 	csrw	satp, zero
-	
+	csrw 	sie, zero
+
 	# Disable linker instruction relaxation for the `la` instruction below.
 	# This disallows the assembler from assuming that `gp` is already initialized.
 	# This causes the value stored in `gp` to be calculated from `pc`.
@@ -64,7 +65,6 @@ _start:
 	# We use mret here so that the mstatus register is properly updated.
 	mret
 3:
-
 	# Parked harts go here. We need to set these
 	# to only awaken if it receives a software interrupt,
 	# which we're going to call the SIPI (Software Intra-Processor Interrupt).

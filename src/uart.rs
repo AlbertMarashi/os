@@ -1,6 +1,5 @@
 
 use core::fmt::{Error, Write};
-use core::convert::TryInto;
 
 /// # Universal Async Reciever Transmitter 
 /// 
@@ -29,17 +28,17 @@ impl Uart {
 			// We can easily write the value 3 here or 0b11, but I'm
 			// extending it so that it is clear we're setting two individual
 			// fields
-			ptr.add(3).write_volatile((1 << 0) | (1 << 1));
+			// ptr.add(3).write_volatile((1 << 0) | (1 << 1));
 
-			// Now, enable the FIFO, which is bit index 0 of the FIFO
-			// control register (FCR at offset 2).
-			// Again, we can just write 1 here, but when we use left shift,
-			// it's easier to see that we're trying to write bit index #0.
-			ptr.add(2).write_volatile(1 << 0);
+			// // Now, enable the FIFO, which is bit index 0 of the FIFO
+			// // control register (FCR at offset 2).
+			// // Again, we can just write 1 here, but when we use left shift,
+			// // it's easier to see that we're trying to write bit index #0.
+			// ptr.add(2).write_volatile(1 << 0);
 
-			// Enable receiver buffer interrupts, which is at bit index
-			// 0 of the interrupt enable register (IER at offset 1).
-			ptr.add(1).write_volatile(1 << 0);
+			// // Enable receiver buffer interrupts, which is at bit index
+			// // 0 of the interrupt enable register (IER at offset 1).
+			// ptr.add(1).write_volatile(1 << 0);
 
             // If we cared about the divisor, the code below would set the divisor
 			// from a global clock rate of 22.729 MHz (22,729,000 cycles per second)
@@ -79,7 +78,8 @@ impl Uart {
 			// // So, to once again get access to the RBR/THR/IER registers, we need to close the DLAB bit
 			// // by clearing it to 0. Here, we just restore the original value of lcr.
 			// ptr.add(3).write_volatile(lcr);
-        }
+        };
+
     }
 
     pub fn put(&mut self, c: u8) {
@@ -87,7 +87,7 @@ impl Uart {
         unsafe {
             // writes a single byte at the position
             ptr.add(0).write_volatile(c);
-        }
+        };
     }
 
     pub fn get(&mut self) -> Option<u8> {
