@@ -14,8 +14,8 @@
 _start:
 	# Any hardware threads (hart) that are not bootstrapping
 	# need to wait for an IPI
-	# csrr	t0, mhartid
-	# bnez	t0, 3f
+	csrr	t0, mhartid
+	bnez	t0, 3f
 	# SATP should be zero, but let's make sure
 	csrw	satp, zero
 	csrw 	sie, zero
@@ -73,3 +73,10 @@ _start:
 4:
 	wfi
 	j		4b
+
+
+.global asm_trap_vector
+# This will be our trap vector when we start
+# handling interrupts.
+asm_trap_vector:
+	mret
