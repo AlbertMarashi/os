@@ -1,4 +1,8 @@
-
+## Install Dependencies
+- install qemu
+- rustup default nightly
+- rustup target add riscv64gc-unknown-none-elf
+- cargo install cargo-binutils
 
 ## Create hdd.dsk
 
