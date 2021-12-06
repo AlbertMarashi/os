@@ -68,8 +68,8 @@ _start:
 
 	# Set the return address to infinitely wait for interrupts.
 	la		ra, 4f
-	# We use mret here so that the mstatus register is properly updated.
 
+	# We use mret here so that the mstatus register is properly updated.
 	mret
 
 3:
