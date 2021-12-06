@@ -12,15 +12,11 @@
 # Execution starts here.
 .global _start
 _start:
-	# Any hardware threads (hart) that are not bootstrapping
-	# need to wait for an IPI
-	csrr	t0, mhartid
-	bnez	t0, 3f
 
-
-	# SATP should be zero, but let's make sure
+	# SATP & SIE should be zero, but let's make sure
 	csrw	satp, zero
 	csrw 	sie, zero
+
 	# Disable linker instruction relaxation for the `la` instruction below.
 	# This disallows the assembler from assuming that `gp` is already initialized.
 	# This causes the value stored in `gp` to be calculated from `pc`.
@@ -29,6 +25,12 @@ _start:
 .option norelax
 	la		gp, _global_pointer
 .option pop
+
+	# Any hardware threads (hart) that are not bootstrapping
+	# need to wait for an IPI
+	csrr	t0, mhartid
+	bnez	t0, 3f
+
 	# Set all bytes in the BSS section to zero.
 	la 		a0, _bss_start
 	la		a1, _bss_end
@@ -39,13 +41,10 @@ _start:
 	addi	a0, a0, 8
 	bltu	a0, a1, 1b
 2:
-	# Control registers, set the stack, mstatus, mepc,
-	# and mtvec to return to the main function.
-	# li		t5, 0xffff;
-	# csrw	medeleg, t5
-	# csrw	mideleg, t5
 
-	la		sp, _stack
+	# The stack grows from bottom to top, so we put the stack pointer
+	# to the very end of the stack range.
+	la		sp, _stack_end
 	# Setting `mstatus` register:
 	# 0b11 << 11: Machine's previous protection mode is 3 (MPP=3).
 	# 1 << 7    : Machine's previous interrupt-enable bit is 1 (MPIE=1).

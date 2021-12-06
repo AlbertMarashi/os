@@ -3,8 +3,8 @@
 FLAGS=(
     -machine virt
     -cpu rv64
-    -smp 1
-    -serial mon:stdio
+    -smp 4
+    #-serial mon:stdio
     -nographic
     -m 128M
     -bios none
