@@ -1,5 +1,3 @@
-# boot.S
-
 # Disable generation of compressed instructions.
 .option norvc
 
