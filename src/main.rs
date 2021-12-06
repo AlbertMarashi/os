@@ -22,6 +22,9 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 
 #[no_mangle]
 extern "C" fn kmain() -> ! {
+    // Uart is Universal Asynchronous Receiver/Transmitter
+    // 0x1000_0000 is the base address of the UART
+    // you can write to the UART with unsafe
     let uart = 0x1000_0000 as *mut u8;
 
     for c in "Hello, world!\r\n".chars() {
@@ -29,5 +32,7 @@ extern "C" fn kmain() -> ! {
             uart.write_volatile(c as u8);
         }
     }
+
+
     loop {}
 }
