@@ -4,7 +4,7 @@ FLAGS=(
     -machine virt
     -cpu rv64
     -smp 4
-    #-serial mon:stdio
+    -serial mon:stdio
     -nographic
     -m 128M
     -bios none
@@ -12,5 +12,7 @@ FLAGS=(
     -device virtio-blk-device,drive=dr0
     -device virtio-gpu-device
 )
+
+FILE=hdd.dsk
 
 qemu-system-riscv64 $FLAGS -kernel $1
