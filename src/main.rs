@@ -2,9 +2,9 @@
 #![no_main]
 #![feature(
     panic_info_message,
-    asm,
-    global_asm
 )]
+
+use core::arch::global_asm;
 
 global_asm!(include_str!("boot.s"));
 
