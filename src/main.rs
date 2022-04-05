@@ -3,36 +3,48 @@
 #![feature(
     panic_info_message,
 )]
+#[macro_use] mod utils;
+mod drivers;
+mod memory;
 
-use core::arch::global_asm;
+extern crate lazy_static;
+
+use core::{arch::global_asm};
 
 global_asm!(include_str!("boot.s"));
 
-#[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
-    let uart = 0x1000_0000 as *mut u8;
+#[no_mangle]
+extern "C" fn kmain() -> ! {
+    println!("Hello World!");
+    unsafe { println!("{:#?} {:#?} {:#?} {:#?} {:#?} {:#?} {:#?} {:#?} {:#?} {:#?}",
+        core::ptr::addr_of!(_stack_start),
+        core::ptr::addr_of!(_bss_start),
+        core::ptr::addr_of!(_bss_end),
+        core::ptr::addr_of!(_data_start),
+        core::ptr::addr_of!(_memory_start),
+        core::ptr::addr_of!(_stack_end),
+        core::ptr::addr_of!(_heap_start),
+        core::ptr::addr_of!(_heap_size),
+        core::ptr::addr_of!(_data_end),
+        core::ptr::addr_of!(_memory_end)
+    );}
 
-    for c in "Kernel Panic!\r\n".chars() {
-        unsafe {
-            uart.write_volatile(c as u8);
-        }
-    }
+    let page_system = memory::page::PageSystem::new();
+
+    println!("{:#?}", page_system);
+
     loop {}
 }
 
-#[no_mangle]
-extern "C" fn kmain() -> ! {
-    // Uart is Universal Asynchronous Receiver/Transmitter
-    // 0x1000_0000 is the base address of the UART
-    // you can write to the UART with unsafe
-    let uart = 0x1000_0000 as *mut u8;
-
-    for c in "Hello, world!\r\n".chars() {
-        unsafe {
-            uart.write_volatile(c as u8);
-        }
-    }
-
-
-    loop {}
+extern "Rust" {
+    static _stack_start: ();
+    static _stack_end: ();
+    static _memory_start: ();
+    static _memory_end: ();
+    static _bss_start: ();
+    static _bss_end: ();
+    static _heap_start: ();
+    static _heap_size: ();
+    static _data_start: ();
+    static _data_end: ();
 }

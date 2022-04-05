@@ -25,7 +25,7 @@ _start:
 .option pop
 
 	# Any hardware threads (hart) that are not bootstrapping
-	# need to wait for an IPI
+	# need to wait for an IPI (interprocessor interrupt) from the bootstrap hart.
 	csrr	t0, mhartid
 	bnez	t0, 3f
 
