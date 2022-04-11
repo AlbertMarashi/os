@@ -53,4 +53,3 @@ impl PageTableEntry {
         self.0 = ppn.0 << 10;
     }
 }
-
