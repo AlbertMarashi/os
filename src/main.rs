@@ -10,7 +10,7 @@ mod memory;
 extern crate lazy_static;
 
 use core::{arch::global_asm};
-
+`
 global_asm!(include_str!("boot.s"));
 
 #[no_mangle]
