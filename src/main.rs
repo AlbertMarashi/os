@@ -1,13 +1,17 @@
 #![no_std]
 #![no_main]
 #![feature(
+    default_alloc_error_handler,
     panic_info_message,
 )]
+
+extern crate alloc;
+extern crate lazy_static;
+
 #[macro_use] mod utils;
 mod drivers;
 mod memory;
 
-extern crate lazy_static;
 
 use core::{arch::global_asm};
 
@@ -29,9 +33,9 @@ extern "C" fn kmain() -> ! {
         core::ptr::addr_of!(_memory_end)
     );}
 
-    let page_system = memory::page::PageSystem::new();
+    // let page_system = memory::page::PageSystem::new();
 
-    println!("{:#?}", page_system);
+    // println!("{:#?}", page_system);
 
     loop {}
 }
