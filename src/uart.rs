@@ -1,15 +1,15 @@
 
 use core::fmt::{Error, Write};
 
-/// # Universal Async Reciever Transmitter 
-/// 
-/// 
+/// # Universal Async Reciever Transmitter
+///
+///
 pub struct Uart {
     base_address: usize,
 }
 
 impl Uart {
-    /// Wrap the structure 
+    /// Wrap the structure
     pub fn new(base_address: usize) -> Self {
         Self {
             base_address
@@ -22,12 +22,12 @@ impl Uart {
 
         // tell the compiler not to optimise changes away by using write_volatile
         unsafe {
-            // First, set the word length, which
-			// are bits 0 and 1 of the line control register (LCR)
-			// which is at base_address + 3
-			// We can easily write the value 3 here or 0b11, but I'm
-			// extending it so that it is clear we're setting two individual
-			// fields
+            // // First, set the word length, which
+			// // are bits 0 and 1 of the line control register (LCR)
+			// // which is at base_address + 3
+			// // We can easily write the value 3 here or 0b11, but I'm
+			// // extending it so that it is clear we're setting two individual
+			// // fields
 			// ptr.add(3).write_volatile((1 << 0) | (1 << 1));
 
 			// // Now, enable the FIFO, which is bit index 0 of the FIFO
@@ -40,22 +40,22 @@ impl Uart {
 			// // 0 of the interrupt enable register (IER at offset 1).
 			// ptr.add(1).write_volatile(1 << 0);
 
-            // If we cared about the divisor, the code below would set the divisor
-			// from a global clock rate of 22.729 MHz (22,729,000 cycles per second)
-			// to a signaling rate of 2400 (BAUD). We usually have much faster signalling
-			// rates nowadays, but this demonstrates what the divisor actually does.
-			// The formula given in the NS16500A specification for calculating the divisor
-			// is:
-			// divisor = ceil( (clock_hz) / (baud_sps x 16) )
-			// So, we substitute our values and get:
-			// divisor = ceil( 22_729_000 / (2400 x 16) )
-			// divisor = ceil( 22_729_000 / 38_400 )
-			// divisor = ceil( 591.901 ) = 592
+            // // If we cared about the divisor, the code below would set the divisor
+			// // from a global clock rate of 22.729 MHz (22,729,000 cycles per second)
+			// // to a signaling rate of 2400 (BAUD). We usually have much faster signalling
+			// // rates nowadays, but this demonstrates what the divisor actually does.
+			// // The formula given in the NS16500A specification for calculating the divisor
+			// // is:
+			// // divisor = ceil( (clock_hz) / (baud_sps x 16) )
+			// // So, we substitute our values and get:
+			// // divisor = ceil( 22_729_000 / (2400 x 16) )
+			// // divisor = ceil( 22_729_000 / 38_400 )
+			// // divisor = ceil( 591.901 ) = 592
 
-			// The divisor register is two bytes (16 bits), so we need to split the value
-			// 592 into two bytes. Typically, we would calculate this based on measuring
-			// the clock rate, but again, for our purposes [qemu], this doesn't really do
-			// anything.
+			// // The divisor register is two bytes (16 bits), so we need to split the value
+			// // 592 into two bytes. Typically, we would calculate this based on measuring
+			// // the clock rate, but again, for our purposes [qemu], this doesn't really do
+			// // anything.
 			// let divisor: u16 = 592;
 			// let divisor_least: u8 = (divisor & 0xff).try_into().unwrap();
 			// let divisor_most:  u8 = (divisor >> 8).try_into().unwrap();

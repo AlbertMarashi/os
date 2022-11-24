@@ -8,24 +8,24 @@
 
 # Define a .text.init section.
 .section .text.init
-
 # Execution starts here.
 .global _start
 _start:
 
-	# SATP & SIE should be zero, but let's make sure
-	csrw	satp, zero
-	csrw 	sie, zero
-
 	# Disable linker instruction relaxation for the `la` instruction below.
 	# This disallows the assembler from assuming that `gp` is already initialized.
 	# This causes the value stored in `gp` to be calculated from `pc`.
+	# The job of the global pointer is to give the linker the ability to address
+	# memory relative to GP instead of as an absolute address.
 
 .option push
 .option norelax
 	la		gp, _global_pointer
 .option pop
 
+	# SATP should be zero, but let's make sure. Each HART has its own
+	# SATP register.
+	csrw	satp, zero
 	# Any hardware threads (hart) that are not bootstrapping
 	# need to wait for an IPI
 	csrr	t0, mhartid

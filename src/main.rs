@@ -3,6 +3,7 @@
 #![feature(
     panic_info_message,
     // llvm_asm,
+    lang_items
 )]
 
 use core::arch::{global_asm, asm};
@@ -38,7 +39,9 @@ macro_rules! println
 // / LANGUAGE STRUCTURES / FUNCTIONS
 // ///////////////////////////////////
 #[no_mangle]
-extern "C" fn eh_personality() {}
+#[lang = "eh_personality"]
+extern fn eh_personality() {}
+
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
     print!("Aborting: ");
@@ -72,6 +75,13 @@ extern "C" fn abort() -> ! {
 // ///////////////////////////////////
 #[no_mangle]
 extern "C" fn kmain() -> ! {
+    {
+        const UART: *mut () = 0x1000_0000 as *mut ();
+
+        unsafe {
+            UART.write_bytes('h' as u8, 1)
+        }
+    }
 
     // Main should initialize all sub-systems and get
     // ready to start scheduling. The last thing this
