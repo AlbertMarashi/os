@@ -5,7 +5,7 @@
 // //! https://docs.oasis-open.org/virtio/virtio/v1.1/virtio-v1.1.html.
 // //!
 // //! Specifically, chapter 5.7 “GPU Device”. This is an unaccelerated 2D device,
-// //! meaning that we must usethe CPU to actually form the framebuffer, then we
+// //! meaning that we must use the CPU to actually form the framebuffer, then we
 // //! transfer our CPU formulated memory location to the host GPU, which is then
 // //! responsible for drawing it to the screen.
 

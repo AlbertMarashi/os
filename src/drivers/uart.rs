@@ -1,15 +1,13 @@
-
-
-
 // 0x1000_0000 is the base address of the UART
 // you can write to the UART with unsafe
 pub struct Uart;
 
-impl Uart {
+pub(crate) const UART_BASE_ADDR: u64 = 0x1000_0000;
 
+impl Uart {
     pub fn write_byte(&self, byte: u8) {
         unsafe {
-            (0x1000_0000 as *mut u8).write_volatile(byte);
+            (UART_BASE_ADDR as *mut u8).write_volatile(byte);
         }
     }
 

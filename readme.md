@@ -23,7 +23,7 @@ _start symbol found in `boot.s` which contains some assembly code to initialize 
 ## Create hdd.dsk
 We need to create a hard drive disk for the qemu emulator.
 ### MacOS
-mkfile -n 1m hdd.dsk
+mkfile -n 32m hdd.dsk
 
 ### Linux
 fallocate -l 1M hdd.dsk

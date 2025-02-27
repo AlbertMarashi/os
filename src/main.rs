@@ -1,54 +1,43 @@
 #![no_std]
 #![no_main]
-#![feature(
-    default_alloc_error_handler,
-    panic_info_message,
-)]
-
-extern crate alloc;
+// extern crate alloc;
 extern crate lazy_static;
 
-#[macro_use] mod utils;
-mod drivers;
-mod memory;
-
-
-use core::{arch::global_asm};
-
+// This is the entry point of the kernel.
+//
+// Inject the assembly code into the binary.
 global_asm!(include_str!("boot.s"));
+
+#[macro_use]
+pub mod utils;
+mod drivers;
+mod kernel;
+
+pub use utils::print;
+
+use core::arch::global_asm;
 
 #[no_mangle]
 extern "C" fn kmain() -> ! {
-    println!("Hello World!");
-    unsafe { println!("{:#?} {:#?} {:#?} {:#?} {:#?} {:#?} {:#?} {:#?} {:#?} {:#?}",
-        core::ptr::addr_of!(_stack_start),
-        core::ptr::addr_of!(_bss_start),
-        core::ptr::addr_of!(_bss_end),
-        core::ptr::addr_of!(_data_start),
-        core::ptr::addr_of!(_memory_start),
-        core::ptr::addr_of!(_stack_end),
-        core::ptr::addr_of!(_heap_start),
-        core::ptr::addr_of!(_heap_size),
-        core::ptr::addr_of!(_data_end),
-        core::ptr::addr_of!(_memory_end)
-    );}
+    unsafe { (0x1000_0000 as *mut u8).write_volatile(0x42) };
+    let uart = crate::drivers::uart::Uart;
+    uart.write_string("KERNEL BOOT: Hello from RISC-V!\n");
+    println!("LUMINA OS: Kernel Starting...");
 
-    // let page_system = memory::page::PageSystem::new();
-
-    // println!("{:#?}", page_system);
+    kernel::init_kernel();
 
     loop {}
 }
 
-extern "Rust" {
-    static _stack_start: ();
-    static _stack_end: ();
-    static _memory_start: ();
-    static _memory_end: ();
-    static _bss_start: ();
-    static _bss_end: ();
-    static _heap_start: ();
-    static _heap_size: ();
-    static _data_start: ();
-    static _data_end: ();
+unsafe extern "Rust" {
+    pub(crate) unsafe static _stack_start: ();
+    pub(crate) unsafe static _stack_end: ();
+    pub(crate) unsafe static _memory_start: ();
+    pub(crate) unsafe static _memory_end: ();
+    pub(crate) unsafe static _bss_start: ();
+    pub(crate) unsafe static _bss_end: ();
+    pub(crate) unsafe static _heap_start: ();
+    pub(crate) unsafe static _heap_size: ();
+    pub(crate) unsafe static _data_start: ();
+    pub(crate) unsafe static _data_end: ();
 }
