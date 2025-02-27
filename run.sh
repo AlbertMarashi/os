@@ -6,7 +6,7 @@ FLAGS=(
     -smp 4
     -nographic          # No GUI
     -serial mon:stdio   # Combine monitor and serial output on stdio
-    -m 128M
+    -m 512M
     -bios none
     -drive format=raw,file=hdd.dsk,id=dr0,if=none
     -device virtio-blk-device,drive=dr0
