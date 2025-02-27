@@ -1,91 +1,74 @@
-# boot.S
-
 # Disable generation of compressed instructions.
 .option norvc
 
 # Define a .data section.
 .section .data
 
+# Storage for the DTB pointer passed by QEMU
+.global dtb_pointer
+dtb_pointer:
+    .dword 0
+
 # Define a .text.init section.
 .section .text.init
 # Execution starts here.
 .global _start
 _start:
+    # Any hardware threads (hart) that are not bootstrapping
+    # need to wait for an IPI.
+    csrr    t0, mhartid
+    bnez    t0, secondary_hart  # If we're not hart 0, park the hart
 
-	# Disable linker instruction relaxation for the `la` instruction below.
-	# This disallows the assembler from assuming that `gp` is already initialized.
-	# This causes the value stored in `gp` to be calculated from `pc`.
-	# The job of the global pointer is to give the linker the ability to address
-	# memory relative to GP instead of as an absolute address.
+    # Save DTB pointer from a1 before it's overwritten
+    la      t1, dtb_pointer
+    sd      a1, 0(t1)           # Store the DTB pointer for later use
 
+    # Initialize global pointer
 .option push
 .option norelax
-	la		gp, _global_pointer
+    la      gp, _global_pointer
 .option pop
 
-	# SATP should be zero, but let's make sure. Each HART has its own
-	# SATP register.
-	csrw	satp, zero
-	# Any hardware threads (hart) that are not bootstrapping
-	# need to wait for an IPI
-	csrr	t0, mhartid
-	bnez	t0, 3f
-
-	# Set all bytes in the BSS section to zero.
-	la 		a0, _bss_start
-	la		a1, _bss_end
-	bgeu	a0, a1, 2f
-
+    # Zero out the BSS section.
+    la      a0, _bss_start
+    la      a1, _bss_end
+    bgeu    a0, a1, 2f
 1:
-	sd		zero, (a0)
-	addi	a0, a0, 8
-	bltu	a0, a1, 1b
+    sd      zero, (a0)
+    addi    a0, a0, 8
+    bltu    a0, a1, 1b
 2:
+    # Set up the stack pointer
+    la      sp, _stack_end
+    
+    # Set mstatus register
+    # - Set MPP (bits 11-12) to 0b11 for Machine mode after mret
+    # - Set MPIE (bit 7) to 1 to enable interrupts after mret
+    # - Set MIE (bit 3) to 1 to enable interrupts in general
+    li      t0, (0b11 << 11) | (1 << 7) | (1 << 3)
+    csrw    mstatus, t0
+    
+    # Set machine's trap vector base address
+    la      t2, asm_trap_vector
+    csrw    mtvec, t2
 
-	# The stack grows from bottom to top, so we put the stack pointer
-	# to the very end of the stack range.
-	la		sp, _stack_end
+    # Call kmain directly
+    call    kmain
+    
+    # If we get here from kmain, jump to end loop
+    j       end_loop
 
-	# Setting `mstatus` register:
-	# 0b01 << 11: Machine's previous protection mode is 2 (MPP=2).
-	li		t0, (0b11 << 11) | (1 << 13)
-	csrw	mstatus, t0
-	# Machine's exception program counter (MEPC) is set to `kmain`.
+# Secondary hart parking
+secondary_hart:
+    # Simply park secondary harts for now
+    wfi
+    j       secondary_hart
 
-	la		t1, kmain
-	csrw	mepc, t1
-	# Machine's trap vector base address is set to `asm_trap_vector`.
-	la		t2, asm_trap_vector
-	csrw	mtvec, t2
+end_loop:
+    # End loop in case kmain returns (should never happen)
+    j       end_loop
 
-	# Setting Machine's interrupt-enable bits (`mie` register):
-	# 1 << 3 : Machine's M-mode software interrupt-enable bit is 1 (MSIE=1).
-	# 1 << 7 : Machine's timer interrupt-enable bit is 1 (MTIE=1).
-	# 1 << 11: Machine's external interrupt-enable bit is 1 (MEIE=1).
-	li		t3, (1 << 3) | (1 << 7) | (1 << 11)
-	csrw	mie, t3
-
-	# Set the return address to infinitely wait for interrupts.
-	la		ra, 4f
-	# We use mret here so that the mstatus register is properly updated.
-
-	mret
-
-3:
-	# Parked harts go here. We need to set these
-	# to only awaken if it receives a software interrupt,
-	# which we're going to call the SIPI (Software Intra-Processor Interrupt).
-	# We only use these to run user-space programs, although this may
-	# change.
-
-4:
-	wfi
-	j		4b
-
-# In the future our trap vector will go here.
-
+# Simple trap vector - just return for now
 .global asm_trap_vector
-# This will be our trap vector when we start
-# handling interrupts.
 asm_trap_vector:
-	mret
+    mret
