@@ -2,8 +2,8 @@ use core::panic::PanicInfo;
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    println!("\n!!! PANIC !!!");
-    println!("{}", info);
-
+    error!("\n!!! PANIC !!!");
+    error!("{}", info);
+    error!("!!! PANIC !!!");
     loop {}
 }

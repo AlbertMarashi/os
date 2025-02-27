@@ -1,3 +1,5 @@
+![LUMINA OS](image.png)
+
 ## Install Dependencies
 - install qemu
   - QEMU (for emulating): [Download QEMU](https://www.qemu.org/download/)
@@ -26,7 +28,13 @@ We need to create a hard drive disk for the qemu emulator.
 mkfile -n 32m hdd.dsk
 
 ### Linux
-fallocate -l 1M hdd.dsk
+fallocate -l 132mM hdd.dsk
 
+
+## Running
+
+```zsh
+cargo run
+```
 
 > Based off of Stephen's Rust RiscV Blog OS

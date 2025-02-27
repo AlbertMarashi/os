@@ -55,18 +55,22 @@ impl GlobalAllocator {
 /// Initialize the global allocator
 ///
 /// # Safety
-/// This function is unsafe because it requires that the memory region
-/// provided is valid and available for the heap to use exclusively.
-pub unsafe fn init_global_allocator() {
+/// Requires that the memory region provided is valid and available
+/// for the heap to use exclusively.
+pub fn init_global_allocator() {
+    section!("ALLOCATOR", "Initializing global memory allocator...");
+
     unsafe extern "Rust" {
         unsafe static _heap_start: usize;
         unsafe static _heap_size: usize;
     }
 
-    let heap_start = &_heap_start as *const _ as usize;
-    let heap_size = &_heap_size as *const _ as usize;
+    let heap_start = unsafe { &_heap_start } as *const _ as usize;
+    let heap_size = unsafe { &_heap_size } as *const _ as usize;
 
-    ALLOCATOR.init(heap_start, heap_size);
+    unsafe { ALLOCATOR.init(heap_start, heap_size) };
+    success!("Global allocator initialized");
+    end_section!();
 }
 
 unsafe impl GlobalAlloc for GlobalAllocator {

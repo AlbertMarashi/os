@@ -16,23 +16,27 @@ pub mod utils;
 mod drivers;
 mod kernel;
 
+use core::arch::global_asm;
 pub use utils::print;
 
-use core::arch::global_asm;
+use crate::print::TextColor;
 
 // Entry point for the kernel
 #[no_mangle]
 pub extern "C" fn kmain() -> ! {
-    // Test println macro
-    println!("===============================");
-    println!("LUMINA OS: WELCOME TO LUMINA OS");
-    println!("===============================");
+    utils::welcome::print_welcome_message();
 
     // Run minimal kernel initialization
-    kernel::init_kernel();
+    let kernel = kernel::init_kernel();
+
+    section!("KERNEL", "Kernel initialized");
+    end_section!();
 
     // Print counter with both methods
-    println!("LUMINA OS: ENTERING NOOP LOOP");
+    section!("KERNEL", "LUMINA OS: ENTERING NOOP LOOP");
+    end_section!();
+
+    print!("{}", TextColor::Red);
 
     let mut counter = 0;
     loop {
@@ -48,7 +52,7 @@ pub extern "C" fn kmain() -> ! {
 
         // Every 10 iterations, print counter using println
         if counter % 10 == 0 {
-            println!("\r\nCount: {}", counter);
+            print!("\r\nCount: {}\n", counter);
         }
     }
 }

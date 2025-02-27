@@ -5,7 +5,9 @@ FLAGS=(
     -cpu rv64
     -smp 4
     -nographic          # No GUI
-    -serial mon:stdio   # Combine monitor and serial output on stdio
+    -serial stdio       # Serial output on stdio
+    -monitor none       # Disable combined monitor mode
+    # -serial mon:stdio   # Combine monitor and serial output on stdio (replaced)
     -m 512M
     -bios none
     -drive format=raw,file=hdd.dsk,id=dr0,if=none
@@ -38,4 +40,8 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-qemu-system-riscv64 $FLAGS -kernel $1
+# Add trap to ensure clean shutdown on Ctrl+C
+trap 'echo "Shutting down QEMU..."; exit' INT TERM
+
+# Use qemu with modified flags to properly handle Ctrl+C
+qemu-system-riscv64 ${FLAGS[@]} -kernel $1

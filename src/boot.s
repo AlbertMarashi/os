@@ -4,6 +4,11 @@
 # Define a .data section.
 .section .data
 
+# Storage for the DTB pointer passed by QEMU
+.global dtb_pointer
+dtb_pointer:
+    .dword 0
+
 # Define a .text.init section.
 .section .text.init
 
@@ -14,6 +19,10 @@ _start:
     # need to wait for an IPI.
     csrr    t0, mhartid
     bnez    t0, secondary_hart  # If we're not hart 0, park the hart
+
+    # Save DTB pointer from a1 before it's overwritten
+    la      t1, dtb_pointer
+    sd      a1, 0(t1)           # Store the DTB pointer for later use
 
     # Initialize global pointer
 .option push
