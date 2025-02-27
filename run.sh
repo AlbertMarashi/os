@@ -4,8 +4,8 @@ FLAGS=(
     -machine virt
     -cpu rv64
     -smp 4
-    # -serial stdio
-    -nographic
+    -nographic          # No GUI
+    -serial mon:stdio   # Combine monitor and serial output on stdio
     -m 128M
     -bios none
     -drive format=raw,file=hdd.dsk,id=dr0,if=none

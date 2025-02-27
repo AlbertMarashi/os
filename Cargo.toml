@@ -2,6 +2,18 @@
 name = "os"
 version = "0.1.0"
 edition = "2021"
+
+# This should be in profile section, not package
+# opt-level = 3
+
+[features]
+default = []
+debug = []
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
 opt-level = 3
 
 [dependencies]

@@ -1,5 +1,7 @@
 #![no_std]
 #![no_main]
+// This feature is now stable since Rust 1.81.0
+// #![feature(panic_info_message)]
 // extern crate alloc;
 extern crate lazy_static;
 
@@ -17,16 +19,55 @@ pub use utils::print;
 
 use core::arch::global_asm;
 
-#[no_mangle]
-extern "C" fn kmain() -> ! {
-    unsafe { (0x1000_0000 as *mut u8).write_volatile(0x42) };
-    let uart = crate::drivers::uart::Uart;
-    uart.write_string("KERNEL BOOT: Hello from RISC-V!\n");
-    println!("LUMINA OS: Kernel Starting...");
+// Direct write to the UART for early debugging
+fn direct_uart_write(c: u8) {
+    unsafe {
+        // QEMU UART address
+        let uart_addr: *mut u8 = 0x1000_0000 as *mut u8;
+        // Write directly to UART data register
+        core::ptr::write_volatile(uart_addr, c);
+    }
+}
 
+// Write a string directly to UART
+fn direct_print(s: &str) {
+    for c in s.bytes() {
+        direct_uart_write(c);
+    }
+}
+
+// Entry point for the kernel
+#[no_mangle]
+pub extern "C" fn kmain() -> ! {
+    // Direct UART debug at start of kmain
+    direct_print("[KMAIN-START]\r\n");
+
+    // Test println macro
+    println!("LUMINA OS: Basic Kernel Test");
+
+    // Run minimal kernel initialization
     kernel::init_kernel();
 
-    loop {}
+    // Print counter with both methods
+    println!("LUMINA OS: Testing print loop...");
+
+    let mut counter = 0;
+    loop {
+        // Print a dot directly to UART
+        direct_uart_write(b'.');
+
+        // Simple delay
+        for _ in 0..1_000_000 {
+            unsafe { core::arch::asm!("nop") }
+        }
+
+        counter += 1;
+
+        // Every 10 iterations, print counter using println
+        if counter % 10 == 0 {
+            println!("\r\nCount: {}", counter);
+        }
+    }
 }
 
 unsafe extern "Rust" {
