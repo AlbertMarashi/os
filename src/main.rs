@@ -75,14 +75,6 @@ extern "C" fn abort() -> ! {
 // ///////////////////////////////////
 #[no_mangle]
 extern "C" fn kmain() -> ! {
-    {
-        const UART: *mut () = 0x1000_0000 as *mut ();
-
-        unsafe {
-            UART.write_bytes('h' as u8, 1)
-        }
-    }
-
     // Main should initialize all sub-systems and get
     // ready to start scheduling. The last thing this
     // should do is start the timer.

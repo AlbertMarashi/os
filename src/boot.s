@@ -45,11 +45,10 @@ _start:
 	# The stack grows from bottom to top, so we put the stack pointer
 	# to the very end of the stack range.
 	la		sp, _stack_end
+
 	# Setting `mstatus` register:
-	# 0b11 << 11: Machine's previous protection mode is 3 (MPP=3).
-	# 1 << 7    : Machine's previous interrupt-enable bit is 1 (MPIE=1).
-	# 1 << 3    : Machine's interrupt-enable bit is 1 (MIE=1).
-	li		t0, (0b11 << 11) | (1 << 7) | (1 << 3)
+	# 0b01 << 11: Machine's previous protection mode is 2 (MPP=2).
+	li		t0, (0b11 << 11) | (1 << 13)
 	csrw	mstatus, t0
 	# Machine's exception program counter (MEPC) is set to `kmain`.
 
